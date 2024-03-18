@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Productos</title>
+  <style>
+ body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333; /* Color de texto oscuro */
+}
+
+#container {
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+#product-form {
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.input-field {
+  margin-bottom: 20px;
+}
+
+.input-field label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.input-field input {
+  width: calc(100% - 10px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.input-field input:focus {
+  outline: none;
+  border-color: #007bff; /* Color de borde al enfocar */
+}
+
+#image-input {
+  display: none;
+}
+
+#image-label,
+#add-product {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #007bff; /* Botón de agregar en azul */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+#image-label:hover,
+#add-product:hover {
+  background-color: #0056b3; /* Efecto hover en azul más oscuro */
+}
+
+#products-list {
+  padding: 20px;
+}
+
+.product {
+  position: relative; /* Para posicionar las etiquetas de producto */
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 10px; /* Bordes más redondeados */
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  color: #333;
+  transition: box-shadow 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+.product:hover {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada en hover */
+}
+
+.product img {
+  width: 60px;
+  height: auto;
+  margin-right: 15px;
+  border-radius: 5px;
+}
+
+.product-details {
+  flex: 1;
+}
+
+.product-details label {
+  display: inline-block;
+  width: 100px;
+  margin-right: 10px;
+  text-align: right;
+  font-weight: bold;
+  font-size: 14px;
+  color: #555;
+}
+
+.product-details input {
+  display: inline-block;
+  width: 200px; /* Ancho fijo para los campos de entrada */
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Espacio entre botones */
+}
+
+.edit-btn,
+.change-img-btn,
+.delete-btn {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 20px; /* Botones más redondeados */
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+.edit-btn:hover,
+.change-img-btn:hover,
+.delete-btn:hover {
+  background-color: #0056b3; /* Efecto hover en azul más oscuro */
+}
+
+.product-label {
+  position: absolute;
+  top: -20px; /* Colocar la etiqueta encima del producto */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #666; /* Color de texto gris */
+}
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="product-form">
+      <div class="input-field">
+        <label for="name">Nombre de producto:</label>
+        <input type="text" id="name">
+      </div>
+      <div class="input-field">
+        <label for="sku">SKU:</label>
+        <input type="text" id="sku">
+      </div>
+      <div class="input-field">
+        <label for="price">Precio:</label>
+        <input type="number" id="price">
+      </div>
+      <div class="input-field">
+        <label for="cost">Costo por Producto:</label>
+        <input type="number" id="cost">
+      </div>
+      <div class="input-field">
+        <label for="stock">Stock:</label>
+        <input type="number" id="stock">
+      </div>
+      <div class="input-field">
+        <input type="file" id="image-input">
+        <label id="image-label" for="image-input">Seleccionar Imagen</label>
+      </div>
+      <button id="add-product">Agregar Nuevo Producto</button>
+    </div>
+
+    <nav>
+      <div id="total-stock">Total de productos: <span id="total-products">0</span>, Stock Total: <span id="total-stock-quantity">0</span>, Costo Total: $<span id="total-cost">0</span></div>
+    </nav>
+
+    <div id="products-list"></div>
+  </div>
+
+  <script>
+    let totalProducts = 0;
+    let totalStock = 0;
+    let totalCost = 0;
+    let products = [];
+
+    function updateTotalProducts() {
+      document.getElementById('total-products').textContent = totalProducts;
+    }
+
+    function updateTotalStock() {
+      document.getElementById('total-stock-quantity').textContent = totalStock;
+    }
+
+    function updateTotalCost() {
+      document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+    }
+
+    function createProductTemplate(name, sku, price, cost, stock, index) {
+  const template = document.createElement('div');
+  template.classList.add('product');
+  template.innerHTML = `
+    <img src="${products[index].image}" alt="Producto">
+    <div class="product-details">
+      <label>Nombre:</label>
+      <input type="text" class="name" value="${name}" disabled>
+      <label>SKU:</label>
+      <input type="text" class="sku" value="${sku}" disabled>
+      <label>Precio:</label>
+      <input type="number" class="price" value="${price}" disabled>
+      <label>Costo:</label>
+      <input type="number" class="cost" value="${cost}" disabled>
+      <label>Stock:</label>
+      <input type="number" class="stock" value="${stock}" disabled>
+    </div>
+    <div class="action-buttons">
+      <button class="edit-btn">Editar</button>
+      <button class="change-img-btn">Cambiar Imagen</button>
+      <button class="delete-btn">Eliminar</button>
+    </div>
+  `;
+  const editButton = template.querySelector('.edit-btn');
+  const imageInput = template.querySelector('.change-img-btn');
+  const deleteButton = template.querySelector('.delete-btn');
+
+  editButton.addEventListener('click', () => editProduct(index));
+  imageInput.addEventListener('click', () => changeImage(index));
+  deleteButton.addEventListener('click', () => deleteProduct(index));
+
+  return template;
+}
+    function addProduct() {
+      const name = document.getElementById('name').value;
+      const sku = document.getElementById('sku').value;
+      const price = parseFloat(document.getElementById('price').value);
+      const cost = parseFloat(document.getElementById('cost').value);
+      const stock = parseInt(document.getElementById('stock').value);
+      const imageInput = document.getElementById('image-input');
+      const imageFile = imageInput.files[0];
+
+      if (!name || !sku || !price || !cost || !stock) {
+        alert("Por favor, complete todos los campos.");
+        return;
+      }
+
+      const newProduct = {
+        name: name,
+        sku: sku,
+        price: price,
+        cost: cost,
+        stock: stock,
+        image: ""
+      };
+
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          newProduct.image = event.target.result;
+          products.push(newProduct);
+          renderProducts();
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        products.push(newProduct);
+        renderProducts();
+      }
+
+      totalProducts++;
+      totalStock += stock;
+      totalCost += cost * stock;
+
+      updateTotalProducts();
+      updateTotalStock();
+      updateTotalCost();
+
+      document.getElementById('product-form').reset();
+    }
+
+    function editProduct(index) {
+      const product = products[index];
+      const fields = document.querySelectorAll('.product')[index].querySelectorAll('input');
+
+      fields.forEach(field => {
+        field.disabled = !field.disabled;
+      });
+
+      const editButton = document.querySelectorAll('.edit-btn')[index];
+      editButton.textContent = editButton.textContent === 'Guardar' ? 'Editar' : 'Guardar';
+    }
+
+    function changeImage(index) {
+      const imageInput = document.createElement('input');
+      imageInput.type = 'file';
+      imageInput.accept = 'image/*';
+      imageInput.addEventListener('change', function() {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          products[index].image = event.target.result;
+          renderProducts();
+        };
+        reader.readAsDataURL(this.files[0]);
+      });
+      imageInput.click();
+    }
+
+    function deleteProduct(index) {
+      const deletedProduct = products[index];
+      totalProducts--;
+      totalStock -= deletedProduct.stock;
+      totalCost -= deletedProduct.cost * deletedProduct.stock;
+      products.splice(index, 1);
+      renderProducts();
+      updateTotalProducts();
+      updateTotalStock();
+      updateTotalCost();
+    }
+
+    function renderProducts() {
+      const container = document.getElementById('products-list');
+      container.innerHTML = '';
+
+      products.forEach((product, index) => {
+        const template = createProductTemplate(product.name, product.sku, product.price, product.cost, product.stock, index);
+        container.appendChild(template);
+      });
+    }
+
+    document.getElementById('add-product').addEventListener('click', addProduct);
+  </script>
+</body>
+</html>
+
