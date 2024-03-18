@@ -183,7 +183,11 @@ body {
 }
 
 .additional-images {
-  min-height: 60px; /* Altura mínima para el contenedor de imágenes adicionales */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Mostrar botones en dos columnas */
+  grid-gap: 5px; /* Espacio entre botones */
+  max-height: 200px; /* Establecer una altura máxima para el contenedor de imágenes adicionales */
+  overflow-y: auto; /* Agregar desplazamiento vertical si el contenido excede la altura máxima */
 }
   </style>
 </head>
@@ -325,6 +329,7 @@ function addProduct() {
     reader.onload = function(event) {
       newProduct.image = event.target.result;
       products.push(newProduct);
+      totalProducts++; // Incrementar el contador de productos después de agregar el producto
       renderProducts();
       updateTotalProducts();
       updateTotalStock();
@@ -333,6 +338,7 @@ function addProduct() {
     reader.readAsDataURL(imageFile);
   } else {
     products.push(newProduct);
+    totalProducts++; // Incrementar el contador de productos después de agregar el producto
     renderProducts();
     updateTotalProducts();
     updateTotalStock();
