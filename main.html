@@ -1,261 +1,98 @@
 <!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Productos</title>
-  <style>
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f9f9f9;
-  color: #333; /* Color de texto oscuro */
-}
-
-#container {
-  max-width: 1200px;
-  margin: 20px auto;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-#product-form {
-  padding: 20px;
-  border-bottom: 1px solid #ddd;
-}
-
-.input-field {
-  margin-bottom: 20px;
-}
-
-.input-field label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.input-field input {
-  width: calc(100% - 10px);
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.input-field input:focus {
-  outline: none;
-  border-color: #007bff; /* Color de borde al enfocar */
-}
-
-#image-input {
-  display: none;
-}
-
-#image-label,
-#add-product {
-  display: inline-block;
-  padding: 10px 20px;
-  margin-top: 10px;
-  background-color: #007bff; /* Botón de agregar en azul */
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-#image-label:hover,
-#add-product:hover {
-  background-color: #0056b3; /* Efecto hover en azul más oscuro */
-}
-
-#products-list {
-  padding: 20px;
-}
-
-.product {
-  position: relative; /* Para posicionar las etiquetas de producto */
-  display: flex;
-  align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 10px; /* Bordes más redondeados */
-  padding: 15px;
-  margin-bottom: 15px;
-  background-color: #fff;
-  color: #333;
-  transition: box-shadow 0.3s ease;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
-  min-height: 120px; /* Altura mínima del producto */
-}
-
-.product:hover {
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada en hover */
-}
-
-.product img {
-  width: 60px;
-  height: auto;
-  margin-right: 15px;
-  border-radius: 5px;
-}
-
-.product-details {
-  flex: 1;
-}
-
-.product-details label {
-  display: inline-block;
-  width: 100px;
-  margin-right: 10px;
-  text-align: right;
-  font-weight: bold;
-  font-size: 14px;
-  color: #555;
-}
-
-.product-details input {
-  display: inline-block;
-  width: 200px; /* Ancho fijo para los campos de entrada */
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-.action-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, auto); /* Organizar en dos columnas */
-  gap: 10px; /* Espacio entre botones */
-}
-
-.edit-btn,
-.change-img-btn,
-.delete-btn,
-.add-more-photos-btn,
-.show-more-photos-btn {
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 20px; /* Botones más redondeados */
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
-}
-
-.edit-btn:hover,
-.change-img-btn:hover,
-.delete-btn:hover,
-.add-more-photos-btn:hover,
-.show-more-photos-btn:hover {
-  background-color: #0056b3; /* Efecto hover en azul más oscuro */
-}
-
-.product-label {
-  position: absolute;
-  top: -20px; /* Colocar la etiqueta encima del producto */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 12px;
-  color: #666; /* Color de texto gris */
-}
-
-.additional-images {
-  display: flex;
-  overflow-x: auto; /* Permitir desplazamiento horizontal si hay demasiadas imágenes */
-}
-
-.additional-images img {
-  width: 60px;
-  height: auto;
-  margin-right: 10px;
-  border-radius: 5px;
-}
-
-.additional-images img:last-child {
-  margin-right: 0;
-}
-
-.additional-images {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Mostrar botones en dos columnas */
-  grid-gap: 5px; /* Espacio entre botones */
-  max-height: 200px; /* Establecer una altura máxima para el contenedor de imágenes adicionales */
-  overflow-y: auto; /* Agregar desplazamiento vertical si el contenido excede la altura máxima */
-}
-
-.image-wrapper {
-  position: relative;
-}
-
-.delete-photo-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 20px;
-  height: 20px;
-  background-color: #ff0000;
-  border: none;
-  color: #fff;
-  font-size: 14px;
-  border-radius: 50%; /* Hacer el botón de eliminar un círculo */
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-}
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Management</title>
+<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-  <div id="container">
-    <div id="product-form">
-      <div class="input-field">
-        <label for="name">Nombre de producto:</label>
-        <input type="text" id="name">
-      </div>
-      <div class="input-field">
-        <label for="sku">SKU:</label>
-        <input type="text" id="sku">
-      </div>
-      <div class="input-field">
-        <label for="price">Precio:</label>
-        <input type="number" id="price">
-      </div>
-      <div class="input-field">
-        <label for="cost">Costo por Producto:</label>
-        <input type="number" id="cost">
-      </div>
-      <div class="input-field">
-        <label for="stock">Stock:</label>
-        <input type="number" id="stock">
-      </div>
-      <div class="input-field">
-        <input type="file" id="image-input">
-        <label id="image-label" for="image-input">Seleccionar Imagen</label>
-      </div>
-      <button id="add-product">Agregar Nuevo Producto</button>
+
+<div id="container">
+  <div id="product-form">
+    <div class="input-field">
+      <label for="name">Nombre de producto:</label>
+      <input type="text" id="name" name="name">
     </div>
-
-    <nav>
-      <div id="total-stock">Total de productos: <span id="total-products">0</span>, Stock Total: <span id="total-stock-quantity">0</span>, Costo Total: $<span id="total-cost">0</span></div>
-    </nav>
-
-    <div id="products-list"></div>
+    <div class="input-field">
+      <label for="sku">SKU:</label>
+      <input type="text" id="sku" name="sku"> <!-- Agrega el atributo name -->
+    </div>
+    <div class="input-field">
+      <label for="price">Precio:</label>
+      <input type="number" id="price">
+    </div>
+    <div class="input-field">
+      <label for="cost">Costo por Producto:</label>
+      <input type="number" id="cost">
+    </div>
+    <div class="input-field">
+      <label for="stock">Stock:</label>
+      <input type="number" id="stock">
+    </div>
+    <div class="input-field">
+      <label for="width">Ancho (cm):</label>
+      <input type="number" id="width">
+    </div>
+    <div class="input-field">
+      <label for="height">Alto (cm):</label>
+      <input type="number" id="height">
+    </div>
+    <div class="input-field">
+      <label for="depth">Profundidad (cm):</label>
+      <input type="number" id="depth">
+    </div>
+    <div class="input-field">
+      <label for="diameter">Diámetro (cm):</label>
+      <input type="number" id="diameter">
+    </div>
+    <div class="input-field">
+      <label for="color">Color:</label>
+      <input type="text" id="color">
+    </div>
+    <div class="input-field">
+      <label for="weight">Peso (kg):</label>
+      <input type="number" id="weight">
+    </div>
+    <div class="input-field">
+      <input type="file" id="image-input">
+      <label id="image-label" for="image-input">Seleccionar Imagen</label>
+    </div>
+    <button id="add-product">Agregar Nuevo Producto</button>
   </div>
 
-  <script>
-  let totalProducts = 0;
+  <nav>
+    <div id="total-stock-info" class="info-box">
+      <h3>Stock Total</h3>
+      <p id="total-stock-quantity">0</p>
+    </div>
+    <div id="total-cost-info" class="info-box">
+      <h3>Costo Total</h3>
+      <p id="total-cost">$0.00</p>
+    </div>
+    <div id="total-products-info" class="info-box">
+      <h3>Total de Productos</h3>
+      <p id="total-products">0</p>
+    </div>
+  </nav>
+
+  <div class="search-container">
+    <label for="search">Buscar por SKU:</label>
+    <input type="text" id="search" oninput="searchProducts()">
+    <button id="search-button" onclick="searchProducts()">Buscar</button>
+    <button id="show-all-button" style="display: none;" onclick="showAllProducts()">Mostrar Todo</button>
+  </div>
+
+  <div id="products-list"></div>
+</div>
+
+<script>
+let totalProducts = 0;
 let totalStock = 0;
 let totalCost = 0;
 let products = [];
+let allProducts = [];
 
 function updateTotalProducts() {
   document.getElementById('total-products').textContent = totalProducts;
@@ -344,65 +181,84 @@ function createProductTemplate(name, sku, price, cost, stock, index) {
   return template;
 }
 
+
 function addProduct() {
-  const name = document.getElementById('name').value;
-  const sku = document.getElementById('sku').value.trim();
-  const price = parseFloat(document.getElementById('price').value);
-  const cost = parseFloat(document.getElementById('cost').value);
-  const stock = parseInt(document.getElementById('stock').value);
-  const imageInput = document.getElementById('image-input');
-  const imageFile = imageInput.files[0];
+    // Obtener valores de los campos
+    const name = document.getElementById('name').value;
+    const sku = document.getElementById('sku').value.trim();
+    const price = parseFloat(document.getElementById('price').value);
+    const cost = parseFloat(document.getElementById('cost').value);
+    const stock = parseInt(document.getElementById('stock').value);
+    const width = parseFloat(document.getElementById('width').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const depth = parseFloat(document.getElementById('depth').value);
+    const diameter = parseFloat(document.getElementById('diameter').value);
+    const color = document.getElementById('color').value;
+    const weight = parseFloat(document.getElementById('weight').value);
+    const imageInput = document.getElementById('image-input');
+    const imageFile = imageInput.files[0];
 
-  if (!name || !sku || !price || !cost || !stock) {
-    alert("Por favor, complete todos los campos.");
-    return;
-  }
+    // Validar campos obligatorios
+    if (!name || !sku || !price || !cost || !stock || !width || !height || !depth || !diameter || !color || !weight) {
+        alert("Por favor, complete todos los campos.");
+        return;
+    }
 
-  // Verificar si el SKU ya está en uso
-  if (products.some(product => product.sku === sku)) {
-    alert("El SKU ingresado ya está en uso. Por favor, elija otro SKU único.");
-    return;
-  }
+    // Verificar si el SKU ya está en uso
+    if (products.some(product => product.sku === sku)) {
+        alert("El SKU ingresado ya está en uso. Por favor, elija otro SKU único.");
+        return;
+    }
 
-  // Validar si el costo es mayor que el precio
-  if (cost > price) {
-    alert("El costo no puede ser mayor que el precio. Por favor, ingrese un costo válido.");
-    return;
-  }
+    // Validar si el costo es mayor que el precio
+    if (cost > price) {
+        alert("El costo no puede ser mayor que el precio. Por favor, ingrese un costo válido.");
+        return;
+    }
 
-  const newProduct = {
-    name: name,
-    sku: sku,
-    price: price,
-    cost: cost,
-    stock: stock,
-    image: "",
-    additionalImages: [] // Initialize additional images array
-  };
-
-  if (imageFile) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      newProduct.image = event.target.result;
-      products.push(newProduct);
-      totalProducts++; // Incrementar el contador de productos
-      renderProducts();
-      updateTotalProducts();
-      updateTotalStock();
-      updateTotalCost();
+    const newProduct = {
+        name: name,
+        sku: sku,
+        price: price,
+        cost: cost,
+        stock: stock,
+        width: width,
+        height: height,
+        depth: depth,
+        diameter: diameter,
+        color: color,
+        weight: weight,
+        image: "",
+        additionalImages: []
     };
-    reader.readAsDataURL(imageFile);
-  } else {
-    products.push(newProduct);
-    totalProducts++; // Incrementar el contador de productos
-    renderProducts();
+
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            newProduct.image = event.target.result;
+            products.push(newProduct);
+            renderProducts(products); // Mostrar todos los productos
+        };
+        reader.readAsDataURL(imageFile);
+    } else {
+        products.push(newProduct);
+        renderProducts(products); // Mostrar todos los productos
+    }
+
+    totalProducts++;
+    totalStock += stock;
+    totalCost += cost * stock;
     updateTotalProducts();
     updateTotalStock();
     updateTotalCost();
-  }
 
-  document.getElementById('product-form').reset();
+    const form = document.getElementById('product-form');
+    if (form && typeof form.reset === 'function') {
+        form.reset(); // Restablecer los valores de los campos del formulario
+    }
 }
+    
+
 function editProduct(index) {
   const product = products[index];
   const fields = document.querySelectorAll('.product')[index].querySelectorAll('input');
@@ -422,6 +278,7 @@ function editProduct(index) {
     renderProducts();
     updateTotalStock();
     updateTotalCost();
+    updateTotalProducts(); // Actualizar también el total de productos
   } else {
     editButton.textContent = 'Guardar';
   }
@@ -528,19 +385,39 @@ function showMorePhotos(index) {
   }
 }
 
-function renderProducts() {
+function renderProducts(filteredProducts = []) {
   const container = document.getElementById('products-list');
   container.innerHTML = '';
 
-  products.forEach((product, index) => {
+  const renderData = filteredProducts.length > 0 ? filteredProducts : products;
+
+  renderData.forEach((product, index) => {
     const template = createProductTemplate(product.name, product.sku, product.price, product.cost, product.stock, index);
     container.appendChild(template);
   });
 }
 
+function searchProducts() {
+    const searchTerm = document.getElementById('search').value.trim().toLowerCase();
+    let filteredProducts = products.filter(product => {
+        return product.sku.toLowerCase().includes(searchTerm);
+    });
+
+    renderProducts(filteredProducts); // Renderizar solo los productos filtrados
+
+    const showAllButton = document.getElementById('show-all-button');
+    if (showAllButton) {
+        showAllButton.style.display = filteredProducts.length > 0 ? 'block' : 'none';
+    }
+}
+
+function showAllProducts() {
+  renderProducts();
+  document.getElementById('show-all-button').style.display = 'none';
+}
+
 document.getElementById('add-product').addEventListener('click', addProduct);
+</script>
 
-
-  </script>
 </body>
 </html>

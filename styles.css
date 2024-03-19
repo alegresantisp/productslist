@@ -1,0 +1,272 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333; /* Color de texto oscuro */
+  }
+
+  #container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding: 20px;
+    text-align: center; /* Centrar contenido */
+  }
+
+  #product-form {
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    text-align: left; /* Alinear campos del formulario a la izquierda */
+  }
+
+  .info-box {
+    display: inline-block;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 10px;
+    transition: background-color 0.3s, transform 0.3s;
+    background-color: #ccc; /* Color de fondo gris */
+  }
+
+  .info-box:hover {
+    transform: scale(1.05);
+  }
+
+  #total-products-info:hover {
+    background-color: #007bff; /* Azul */
+  }
+
+  #total-stock-info:hover {
+    background-color: #ff9933; /* Naranja */
+  }
+
+  #total-cost-info:hover {
+    background-color: #ffff00; /* Amarillo */
+  }
+
+  .info-box h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333; /* Color de texto oscuro */
+  }
+
+  .info-box p {
+    margin: 5px 0;
+    font-size: 18px;
+    color: #555; /* Color de texto gris */
+  }
+
+  .input-field {
+    margin-bottom: 20px;
+  }
+
+  .input-field label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .input-field input {
+    width: calc(100% - 10px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .input-field input:focus {
+    outline: none;
+    border-color: #007bff; /* Color de borde al enfocar */
+  }
+
+  #image-input {
+    display: none;
+  }
+
+  #image-label,
+  #add-product {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #007bff; /* Botón de agregar en azul */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+
+  #image-label:hover,
+  #add-product:hover {
+    background-color: #0056b3; /* Efecto hover en azul más oscuro */
+  }
+
+  #products-list {
+    padding: 20px;
+  }
+
+  .product {
+    position: relative; /* Para posicionar las etiquetas de producto */
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 10px; /* Bordes más redondeados */
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+    color: #333;
+    transition: box-shadow 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+    min-height: 120px; /* Altura mínima del producto */
+  }
+
+  .product:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada en hover */
+  }
+
+  .product img {
+    width: 60px;
+    height: auto;
+    margin-right: 15px;
+    border-radius: 5px;
+  }
+
+  .product-details {
+    flex: 1;
+  }
+
+  .product-details label {
+    display: inline-block;
+    width: 100px;
+    margin-right: 10px;
+    text-align: right;
+    font-weight: bold;
+    font-size: 14px;
+    color: #555;
+  }
+
+  .product-details input {
+    display: inline-block;
+    width: 200px; /* Ancho fijo para los campos de entrada */
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+
+  .action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, auto); /* Organizar en dos columnas */
+    gap: 10px; /* Espacio entre botones */
+  }
+
+  .edit-btn,
+  .change-img-btn,
+  .delete-btn,
+  .add-more-photos-btn,
+  .show-more-photos-btn {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 20px; /* Botones más redondeados */
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
+  }
+
+  .edit-btn:hover,
+  .change-img-btn:hover,
+  .delete-btn:hover,
+  .add-more-photos-btn:hover,
+  .show-more-photos-btn:hover {
+    background-color: #0056b3; /* Efecto hover en azul más oscuro */
+  }
+
+  .product-label {
+    position: absolute;
+    top: -20px; /* Colocar la etiqueta encima del producto */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #666; /* Color de texto gris */
+  }
+
+  .additional-images {
+    display: flex;
+    overflow-x: auto; /* Permitir desplazamiento horizontal si hay demasiadas imágenes */
+  }
+
+  .additional-images img {
+    width: 60px;
+    height: auto;
+    margin-right: 10px;
+    border-radius: 5px;
+  }
+
+  .additional-images img:last-child {
+    margin-right: 0;
+  }
+
+  .additional-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Mostrar botones en dos columnas */
+    grid-gap: 5px; /* Espacio entre botones */
+    max-height: 200px; /* Establecer una altura máxima para el contenedor de imágenes adicionales */
+    overflow-y: auto; /* Agregar desplazamiento vertical si el contenido excede la altura máxima */
+  }
+
+  .image-wrapper {
+    position: relative;
+  }
+
+  .delete-photo-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background-color: #ff0000;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 50%; /* Hacer el botón de eliminar un círculo */
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+  }
+
+  .search-container {
+    display: flex;
+    align-items: center; /* Centrar verticalmente los elementos */
+  }
+
+  #search {
+    flex: 1; /* El campo de búsqueda ocupa todo el espacio disponible */
+  }
+
+  .search-button {
+    margin-left: 10px; /* Espacio entre el campo de búsqueda y el botón */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+
+  .search-button:hover {
+    background-color: #45a049;
+  }
