@@ -189,6 +189,29 @@ body {
   max-height: 200px; /* Establecer una altura máxima para el contenedor de imágenes adicionales */
   overflow-y: auto; /* Agregar desplazamiento vertical si el contenido excede la altura máxima */
 }
+
+.image-wrapper {
+  position: relative;
+}
+
+.delete-photo-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  background-color: #ff0000;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 50%; /* Hacer el botón de eliminar un círculo */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
   </style>
 </head>
 <body>
@@ -285,6 +308,27 @@ function createProductTemplate(name, sku, price, cost, stock, index) {
       <button class="show-more-photos-btn">Mostrar más fotos</button>
     </div>
   `;
+
+  const imageContainer = template.querySelector('.product-images');
+  const additionalImagesContainer = template.querySelector('.additional-images');
+  
+  // Agregar botón de eliminar encima de cada foto adicional
+  products[index].additionalImages.forEach((image, i) => {
+    const additionalImage = new Image();
+    additionalImage.src = image;
+    additionalImage.alt = `Producto ${i + 2}`;
+    additionalImage.classList.add('additional-image');
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '×'; // Icono de cruz
+    deleteButton.classList.add('delete-photo-btn');
+    deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i));
+    const imageWrapper = document.createElement('div');
+    imageWrapper.classList.add('image-wrapper');
+    imageWrapper.appendChild(additionalImage);
+    imageWrapper.appendChild(deleteButton);
+    additionalImagesContainer.appendChild(imageWrapper);
+  });
+
   const editButton = template.querySelector('.edit-btn');
   const imageInput = template.querySelector('.change-img-btn');
   const deleteButton = template.querySelector('.delete-btn');
@@ -302,7 +346,7 @@ function createProductTemplate(name, sku, price, cost, stock, index) {
 
 function addProduct() {
   const name = document.getElementById('name').value;
-  const sku = document.getElementById('sku').value;
+  const sku = document.getElementById('sku').value.trim();
   const price = parseFloat(document.getElementById('price').value);
   const cost = parseFloat(document.getElementById('cost').value);
   const stock = parseInt(document.getElementById('stock').value);
@@ -311,6 +355,18 @@ function addProduct() {
 
   if (!name || !sku || !price || !cost || !stock) {
     alert("Por favor, complete todos los campos.");
+    return;
+  }
+
+  // Verificar si el SKU ya está en uso
+  if (products.some(product => product.sku === sku)) {
+    alert("El SKU ingresado ya está en uso. Por favor, elija otro SKU único.");
+    return;
+  }
+
+  // Validar si el costo es mayor que el precio
+  if (cost > price) {
+    alert("El costo no puede ser mayor que el precio. Por favor, ingrese un costo válido.");
     return;
   }
 
@@ -329,7 +385,7 @@ function addProduct() {
     reader.onload = function(event) {
       newProduct.image = event.target.result;
       products.push(newProduct);
-      totalProducts++; // Incrementar el contador de productos después de agregar el producto
+      totalProducts++; // Incrementar el contador de productos
       renderProducts();
       updateTotalProducts();
       updateTotalStock();
@@ -338,7 +394,7 @@ function addProduct() {
     reader.readAsDataURL(imageFile);
   } else {
     products.push(newProduct);
-    totalProducts++; // Incrementar el contador de productos después de agregar el producto
+    totalProducts++; // Incrementar el contador de productos
     renderProducts();
     updateTotalProducts();
     updateTotalStock();
@@ -347,7 +403,6 @@ function addProduct() {
 
   document.getElementById('product-form').reset();
 }
-
 function editProduct(index) {
   const product = products[index];
   const fields = document.querySelectorAll('.product')[index].querySelectorAll('input');
@@ -399,6 +454,11 @@ function deleteProduct(index) {
   updateTotalCost();
 }
 
+function deleteAdditionalImage(productIndex, imageIndex) {
+  products[productIndex].additionalImages.splice(imageIndex, 1);
+  renderProducts();
+}
+
 function addMorePhotos(index) {
   const imageInput = document.createElement('input');
   imageInput.type = 'file';
@@ -431,14 +491,34 @@ function showMorePhotos(index) {
     if (showMoreButton.textContent === "Mostrar más fotos") {
       showMoreButton.textContent = "Mostrar menos fotos";
       showMoreButton.style.backgroundColor = "#ffcc00"; // Cambiar color de fondo del botón
-      additionalImagesContainer.innerHTML = ''; // Limpiar imágenes adicionales anteriores
 
+      // Limpiar imágenes adicionales anteriores
+      additionalImagesContainer.innerHTML = '';
+
+      // Iterar sobre las imágenes adicionales y agregarlas al contenedor
       product.additionalImages.forEach((image, i) => {
+        // Crear un contenedor para la imagen y el botón de eliminación
+        const imageWrapper = document.createElement('div');
+        imageWrapper.classList.add('image-wrapper');
+
+        // Crear la imagen adicional y configurar atributos
         const additionalImage = new Image();
         additionalImage.src = image;
         additionalImage.alt = `Producto ${i + 2}`;
         additionalImage.classList.add('additional-image');
-        additionalImagesContainer.appendChild(additionalImage);
+
+        // Crear el botón de eliminación y configurar eventos
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-photo-btn');
+        deleteButton.innerHTML = '&times;'; // Símbolo de la cruz
+        deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i)); // Llamar a la función deleteAdditionalImage
+
+        // Agregar la imagen y el botón de eliminación al contenedor
+        imageWrapper.appendChild(additionalImage);
+        imageWrapper.appendChild(deleteButton);
+
+        // Agregar el contenedor al contenedor de imágenes adicionales
+        additionalImagesContainer.appendChild(imageWrapper);
       });
     } else {
       showMoreButton.textContent = "Mostrar más fotos";
@@ -464,4 +544,3 @@ document.getElementById('add-product').addEventListener('click', addProduct);
   </script>
 </body>
 </html>
-
