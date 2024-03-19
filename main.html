@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Productos</title>
   <style>
- body {
+body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
@@ -89,6 +89,7 @@
   color: #333;
   transition: box-shadow 0.3s ease;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+  min-height: 120px; /* Altura mínima del producto */
 }
 
 .product:hover {
@@ -127,14 +128,16 @@
 }
 
 .action-buttons {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, auto); /* Organizar en dos columnas */
   gap: 10px; /* Espacio entre botones */
 }
 
 .edit-btn,
 .change-img-btn,
-.delete-btn {
+.delete-btn,
+.add-more-photos-btn,
+.show-more-photos-btn {
   padding: 8px 12px;
   background-color: #007bff;
   color: #fff;
@@ -148,7 +151,9 @@
 
 .edit-btn:hover,
 .change-img-btn:hover,
-.delete-btn:hover {
+.delete-btn:hover,
+.add-more-photos-btn:hover,
+.show-more-photos-btn:hover {
   background-color: #0056b3; /* Efecto hover en azul más oscuro */
 }
 
@@ -160,6 +165,53 @@
   font-size: 12px;
   color: #666; /* Color de texto gris */
 }
+
+.additional-images {
+  display: flex;
+  overflow-x: auto; /* Permitir desplazamiento horizontal si hay demasiadas imágenes */
+}
+
+.additional-images img {
+  width: 60px;
+  height: auto;
+  margin-right: 10px;
+  border-radius: 5px;
+}
+
+.additional-images img:last-child {
+  margin-right: 0;
+}
+
+.additional-images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Mostrar botones en dos columnas */
+  grid-gap: 5px; /* Espacio entre botones */
+  max-height: 200px; /* Establecer una altura máxima para el contenedor de imágenes adicionales */
+  overflow-y: auto; /* Agregar desplazamiento vertical si el contenido excede la altura máxima */
+}
+
+.image-wrapper {
+  position: relative;
+}
+
+.delete-photo-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  background-color: #ff0000;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 50%; /* Hacer el botón de eliminar un círculo */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
   </style>
 </head>
 <body>
@@ -200,28 +252,42 @@
   </div>
 
   <script>
-    let totalProducts = 0;
-    let totalStock = 0;
-    let totalCost = 0;
-    let products = [];
+  let totalProducts = 0;
+let totalStock = 0;
+let totalCost = 0;
+let products = [];
 
-    function updateTotalProducts() {
-      document.getElementById('total-products').textContent = totalProducts;
-    }
+function updateTotalProducts() {
+  document.getElementById('total-products').textContent = totalProducts;
+}
 
-    function updateTotalStock() {
-      document.getElementById('total-stock-quantity').textContent = totalStock;
-    }
+function updateTotalStock() {
+  let sumStock = 0;
+  products.forEach(product => {
+    sumStock += product.stock;
+  });
+  totalStock = sumStock;
+  document.getElementById('total-stock-quantity').textContent = totalStock;
+}
 
-    function updateTotalCost() {
-      document.getElementById('total-cost').textContent = totalCost.toFixed(2);
-    }
+function updateTotalCost() {
+  let sumCost = 0;
+  products.forEach(product => {
+    sumCost += product.cost * product.stock;
+  });
+  totalCost = sumCost;
+  document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+}
 
-    function createProductTemplate(name, sku, price, cost, stock, index) {
+function createProductTemplate(name, sku, price, cost, stock, index) {
   const template = document.createElement('div');
   template.classList.add('product');
+  template.classList.add(`product-${index}`); // Add unique class for each product
   template.innerHTML = `
-    <img src="${products[index].image}" alt="Producto">
+    <div class="product-images">
+      <img src="${products[index].image}" alt="Producto" class="product-image">
+      <div class="additional-images"></div>
+    </div>
     <div class="product-details">
       <label>Nombre:</label>
       <input type="text" class="name" value="${name}" disabled>
@@ -238,116 +304,243 @@
       <button class="edit-btn">Editar</button>
       <button class="change-img-btn">Cambiar Imagen</button>
       <button class="delete-btn">Eliminar</button>
+      <button class="add-more-photos-btn">Agregar más fotos</button>
+      <button class="show-more-photos-btn">Mostrar más fotos</button>
     </div>
   `;
+
+  const imageContainer = template.querySelector('.product-images');
+  const additionalImagesContainer = template.querySelector('.additional-images');
+  
+  // Agregar botón de eliminar encima de cada foto adicional
+  products[index].additionalImages.forEach((image, i) => {
+    const additionalImage = new Image();
+    additionalImage.src = image;
+    additionalImage.alt = `Producto ${i + 2}`;
+    additionalImage.classList.add('additional-image');
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '×'; // Icono de cruz
+    deleteButton.classList.add('delete-photo-btn');
+    deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i));
+    const imageWrapper = document.createElement('div');
+    imageWrapper.classList.add('image-wrapper');
+    imageWrapper.appendChild(additionalImage);
+    imageWrapper.appendChild(deleteButton);
+    additionalImagesContainer.appendChild(imageWrapper);
+  });
+
   const editButton = template.querySelector('.edit-btn');
   const imageInput = template.querySelector('.change-img-btn');
   const deleteButton = template.querySelector('.delete-btn');
+  const addMorePhotosButton = template.querySelector('.add-more-photos-btn');
+  const showMorePhotosButton = template.querySelector('.show-more-photos-btn');
 
   editButton.addEventListener('click', () => editProduct(index));
   imageInput.addEventListener('click', () => changeImage(index));
   deleteButton.addEventListener('click', () => deleteProduct(index));
+  addMorePhotosButton.addEventListener('click', () => addMorePhotos(index));
+  showMorePhotosButton.addEventListener('click', () => showMorePhotos(index));
 
   return template;
 }
-    function addProduct() {
-      const name = document.getElementById('name').value;
-      const sku = document.getElementById('sku').value;
-      const price = parseFloat(document.getElementById('price').value);
-      const cost = parseFloat(document.getElementById('cost').value);
-      const stock = parseInt(document.getElementById('stock').value);
-      const imageInput = document.getElementById('image-input');
-      const imageFile = imageInput.files[0];
 
-      if (!name || !sku || !price || !cost || !stock) {
-        alert("Por favor, complete todos los campos.");
-        return;
-      }
+function addProduct() {
+  const name = document.getElementById('name').value;
+  const sku = document.getElementById('sku').value.trim();
+  const price = parseFloat(document.getElementById('price').value);
+  const cost = parseFloat(document.getElementById('cost').value);
+  const stock = parseInt(document.getElementById('stock').value);
+  const imageInput = document.getElementById('image-input');
+  const imageFile = imageInput.files[0];
 
-      const newProduct = {
-        name: name,
-        sku: sku,
-        price: price,
-        cost: cost,
-        stock: stock,
-        image: ""
-      };
+  if (!name || !sku || !price || !cost || !stock) {
+    alert("Por favor, complete todos los campos.");
+    return;
+  }
 
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          newProduct.image = event.target.result;
-          products.push(newProduct);
-          renderProducts();
-        };
-        reader.readAsDataURL(imageFile);
-      } else {
-        products.push(newProduct);
-        renderProducts();
-      }
+  // Verificar si el SKU ya está en uso
+  if (products.some(product => product.sku === sku)) {
+    alert("El SKU ingresado ya está en uso. Por favor, elija otro SKU único.");
+    return;
+  }
 
-      totalProducts++;
-      totalStock += stock;
-      totalCost += cost * stock;
+  // Validar si el costo es mayor que el precio
+  if (cost > price) {
+    alert("El costo no puede ser mayor que el precio. Por favor, ingrese un costo válido.");
+    return;
+  }
 
-      updateTotalProducts();
-      updateTotalStock();
-      updateTotalCost();
+  const newProduct = {
+    name: name,
+    sku: sku,
+    price: price,
+    cost: cost,
+    stock: stock,
+    image: "",
+    additionalImages: [] // Initialize additional images array
+  };
 
-      document.getElementById('product-form').reset();
-    }
-
-    function editProduct(index) {
-      const product = products[index];
-      const fields = document.querySelectorAll('.product')[index].querySelectorAll('input');
-
-      fields.forEach(field => {
-        field.disabled = !field.disabled;
-      });
-
-      const editButton = document.querySelectorAll('.edit-btn')[index];
-      editButton.textContent = editButton.textContent === 'Guardar' ? 'Editar' : 'Guardar';
-    }
-
-    function changeImage(index) {
-      const imageInput = document.createElement('input');
-      imageInput.type = 'file';
-      imageInput.accept = 'image/*';
-      imageInput.addEventListener('change', function() {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          products[index].image = event.target.result;
-          renderProducts();
-        };
-        reader.readAsDataURL(this.files[0]);
-      });
-      imageInput.click();
-    }
-
-    function deleteProduct(index) {
-      const deletedProduct = products[index];
-      totalProducts--;
-      totalStock -= deletedProduct.stock;
-      totalCost -= deletedProduct.cost * deletedProduct.stock;
-      products.splice(index, 1);
+  if (imageFile) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      newProduct.image = event.target.result;
+      products.push(newProduct);
+      totalProducts++; // Incrementar el contador de productos
       renderProducts();
       updateTotalProducts();
       updateTotalStock();
       updateTotalCost();
+    };
+    reader.readAsDataURL(imageFile);
+  } else {
+    products.push(newProduct);
+    totalProducts++; // Incrementar el contador de productos
+    renderProducts();
+    updateTotalProducts();
+    updateTotalStock();
+    updateTotalCost();
+  }
+
+  document.getElementById('product-form').reset();
+}
+function editProduct(index) {
+  const product = products[index];
+  const fields = document.querySelectorAll('.product')[index].querySelectorAll('input');
+
+  fields.forEach(field => {
+    field.disabled = !field.disabled;
+  });
+
+  const editButton = document.querySelectorAll('.edit-btn')[index];
+  if (editButton.textContent === 'Guardar') {
+    editButton.textContent = 'Editar';
+    products[index].name = fields[0].value;
+    products[index].sku = fields[1].value;
+    products[index].price = parseFloat(fields[2].value);
+    products[index].cost = parseFloat(fields[3].value);
+    products[index].stock = parseInt(fields[4].value);
+    renderProducts();
+    updateTotalStock();
+    updateTotalCost();
+  } else {
+    editButton.textContent = 'Guardar';
+  }
+}
+
+function changeImage(index) {
+  const imageInput = document.createElement('input');
+  imageInput.type = 'file';
+  imageInput.accept = 'image/*';
+  imageInput.addEventListener('change', function() {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      products[index].image = event.target.result;
+      renderProducts();
+    };
+    reader.readAsDataURL(this.files[0]);
+  });
+  imageInput.click();
+}
+
+function deleteProduct(index) {
+  const deletedProduct = products[index];
+  totalProducts--;
+  totalStock -= deletedProduct.stock;
+  totalCost -= deletedProduct.cost * deletedProduct.stock;
+  products.splice(index, 1);
+  renderProducts();
+  updateTotalProducts();
+  updateTotalStock();
+  updateTotalCost();
+}
+
+function deleteAdditionalImage(productIndex, imageIndex) {
+  products[productIndex].additionalImages.splice(imageIndex, 1);
+  renderProducts();
+}
+
+function addMorePhotos(index) {
+  const imageInput = document.createElement('input');
+  imageInput.type = 'file';
+  imageInput.accept = 'image/*';
+  imageInput.multiple = true; // Allow selecting multiple images
+  imageInput.addEventListener('change', function() {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const additionalImages = event.target.result;
+      if (products[index].additionalImages.length < 4) {
+        products[index].additionalImages.push(additionalImages);
+        renderProducts();
+      } else {
+        alert("Solo se permiten hasta 4 fotos adicionales.");
+      }
+    };
+    for (const file of this.files) {
+      reader.readAsDataURL(file);
     }
+  });
+  imageInput.click();
+}
 
-    function renderProducts() {
-      const container = document.getElementById('products-list');
-      container.innerHTML = '';
+function showMorePhotos(index) {
+  const product = products[index];
+  const additionalImagesContainer = document.querySelector(`.product-${index} .additional-images`);
+  const showMoreButton = document.querySelector(`.product-${index} .show-more-photos-btn`);
 
-      products.forEach((product, index) => {
-        const template = createProductTemplate(product.name, product.sku, product.price, product.cost, product.stock, index);
-        container.appendChild(template);
+  if (product.additionalImages.length > 0) {
+    if (showMoreButton.textContent === "Mostrar más fotos") {
+      showMoreButton.textContent = "Mostrar menos fotos";
+      showMoreButton.style.backgroundColor = "#ffcc00"; // Cambiar color de fondo del botón
+
+      // Limpiar imágenes adicionales anteriores
+      additionalImagesContainer.innerHTML = '';
+
+      // Iterar sobre las imágenes adicionales y agregarlas al contenedor
+      product.additionalImages.forEach((image, i) => {
+        // Crear un contenedor para la imagen y el botón de eliminación
+        const imageWrapper = document.createElement('div');
+        imageWrapper.classList.add('image-wrapper');
+
+        // Crear la imagen adicional y configurar atributos
+        const additionalImage = new Image();
+        additionalImage.src = image;
+        additionalImage.alt = `Producto ${i + 2}`;
+        additionalImage.classList.add('additional-image');
+
+        // Crear el botón de eliminación y configurar eventos
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-photo-btn');
+        deleteButton.innerHTML = '&times;'; // Símbolo de la cruz
+        deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i)); // Llamar a la función deleteAdditionalImage
+
+        // Agregar la imagen y el botón de eliminación al contenedor
+        imageWrapper.appendChild(additionalImage);
+        imageWrapper.appendChild(deleteButton);
+
+        // Agregar el contenedor al contenedor de imágenes adicionales
+        additionalImagesContainer.appendChild(imageWrapper);
       });
+    } else {
+      showMoreButton.textContent = "Mostrar más fotos";
+      showMoreButton.style.backgroundColor = "#007bff"; // Cambiar color de fondo del botón
+      additionalImagesContainer.innerHTML = ''; // Ocultar imágenes adicionales
     }
+  }
+}
 
-    document.getElementById('add-product').addEventListener('click', addProduct);
+function renderProducts() {
+  const container = document.getElementById('products-list');
+  container.innerHTML = '';
+
+  products.forEach((product, index) => {
+    const template = createProductTemplate(product.name, product.sku, product.price, product.cost, product.stock, index);
+    container.appendChild(template);
+  });
+}
+
+document.getElementById('add-product').addEventListener('click', addProduct);
+
+
   </script>
 </body>
 </html>
-
