@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -17,15 +16,15 @@
     </div>
     <div class="input-field">
       <label for="sku">SKU:</label>
-      <input type="text" id="sku" name="sku"> <!-- Agrega el atributo name -->
+      <input type="text" id="sku" name="sku">
     </div>
     <div class="input-field">
       <label for="price">Precio:</label>
-      <input type="number" id="price">
+      <input type="number" id="price" step="0.01">
     </div>
     <div class="input-field">
       <label for="cost">Costo por Producto:</label>
-      <input type="number" id="cost">
+      <input type="number" id="cost" step="0.01">
     </div>
     <div class="input-field">
       <label for="stock">Stock:</label>
@@ -33,19 +32,19 @@
     </div>
     <div class="input-field">
       <label for="width">Ancho (cm):</label>
-      <input type="number" id="width">
+      <input type="number" id="width" step="0.01">
     </div>
     <div class="input-field">
       <label for="height">Alto (cm):</label>
-      <input type="number" id="height">
+      <input type="number" id="height" step="0.01">
     </div>
     <div class="input-field">
       <label for="depth">Profundidad (cm):</label>
-      <input type="number" id="depth">
+      <input type="number" id="depth" step="0.01">
     </div>
     <div class="input-field">
       <label for="diameter">Diámetro (cm):</label>
-      <input type="number" id="diameter">
+      <input type="number" id="diameter" step="0.01">
     </div>
     <div class="input-field">
       <label for="color">Color:</label>
@@ -53,7 +52,11 @@
     </div>
     <div class="input-field">
       <label for="weight">Peso (kg):</label>
-      <input type="number" id="weight">
+      <input type="number" id="weight" step="0.01">
+    </div>
+    <div class="input-field">
+        <label for="category">Categoría:</label>
+        <input type="text" id="category" name="category">
     </div>
     <div class="input-field">
       <input type="file" id="image-input">
@@ -80,137 +83,146 @@
   <div class="search-container">
     <label for="search">Buscar por SKU:</label>
     <input type="text" id="search" oninput="searchProducts()">
-    <button id="search-button" onclick="searchProducts()">Buscar</button>
+    <button id="search-button">Buscar</button>
     <button id="show-all-button" style="display: none;" onclick="showAllProducts()">Mostrar Todo</button>
   </div>
+
+  <div class="filter-container">
+    <label for="category-filter">Filtrar por Categoría:</label>
+    <select id="category-filter" onchange="filterByCategory()" name="category-filter">
+      <option value="Todas">Todas</option>
+      <!-- Aquí se agregarán las opciones de categorías dinámicamente -->
+    </select>
+  </div>
+
+  <div id="category-buttons-container">
+    <!-- Aquí se agregarán dinámicamente los botones de categoría -->
+  </div>
+
+  <button id="show-all-products-button" onclick="showAllProducts()">MOSTRAR TODOS</button>
+
 
   <div id="products-list"></div>
 </div>
 
 <script>
+
 let totalProducts = 0;
-let totalStock = 0;
-let totalCost = 0;
-let products = [];
-let allProducts = [];
+  let totalStock = 0;
+  let totalCost = 0;
+  let products = [];
+  let categories = [];
+  let filteredCategory = 'Todas'; 
 
-function updateTotalProducts() {
-  document.getElementById('total-products').textContent = totalProducts;
-}
-
-function updateTotalStock() {
-  let sumStock = 0;
-  products.forEach(product => {
-    sumStock += product.stock;
-  });
-  totalStock = sumStock;
-  document.getElementById('total-stock-quantity').textContent = totalStock;
-}
-
-function updateTotalCost() {
-  let sumCost = 0;
-  products.forEach(product => {
-    sumCost += product.cost * product.stock;
-  });
-  totalCost = sumCost;
-  document.getElementById('total-cost').textContent = totalCost.toFixed(2);
-}
-
-function createProductTemplate(name, sku, price, cost, stock, index) {
-  const template = document.createElement('div');
-  template.classList.add('product');
-  template.classList.add(`product-${index}`); // Add unique class for each product
-  template.innerHTML = `
-    <div class="product-images">
-      <img src="${products[index].image}" alt="Producto" class="product-image">
-      <div class="additional-images"></div>
-    </div>
-    <div class="product-details">
-      <label>Nombre:</label>
-      <input type="text" class="name" value="${name}" disabled>
-      <label>SKU:</label>
-      <input type="text" class="sku" value="${sku}" disabled>
-      <label>Precio:</label>
-      <input type="number" class="price" value="${price}" disabled>
-      <label>Costo:</label>
-      <input type="number" class="cost" value="${cost}" disabled>
-      <label>Stock:</label>
-      <input type="number" class="stock" value="${stock}" disabled>
-    </div>
-    <div class="action-buttons">
-      <button class="edit-btn">Editar</button>
-      <button class="change-img-btn">Cambiar Imagen</button>
-      <button class="delete-btn">Eliminar</button>
-      <button class="add-more-photos-btn">Agregar más fotos</button>
-      <button class="show-more-photos-btn">Mostrar más fotos</button>
-    </div>
-  `;
-
-  const imageContainer = template.querySelector('.product-images');
-  const additionalImagesContainer = template.querySelector('.additional-images');
-  
-  // Agregar botón de eliminar encima de cada foto adicional
-  products[index].additionalImages.forEach((image, i) => {
-    const additionalImage = new Image();
-    additionalImage.src = image;
-    additionalImage.alt = `Producto ${i + 2}`;
-    additionalImage.classList.add('additional-image');
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = '×'; // Icono de cruz
-    deleteButton.classList.add('delete-photo-btn');
-    deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i));
-    const imageWrapper = document.createElement('div');
-    imageWrapper.classList.add('image-wrapper');
-    imageWrapper.appendChild(additionalImage);
-    imageWrapper.appendChild(deleteButton);
-    additionalImagesContainer.appendChild(imageWrapper);
-  });
-
-  const editButton = template.querySelector('.edit-btn');
-  const imageInput = template.querySelector('.change-img-btn');
-  const deleteButton = template.querySelector('.delete-btn');
-  const addMorePhotosButton = template.querySelector('.add-more-photos-btn');
-  const showMorePhotosButton = template.querySelector('.show-more-photos-btn');
-
-  editButton.addEventListener('click', () => editProduct(index));
-  imageInput.addEventListener('click', () => changeImage(index));
-  deleteButton.addEventListener('click', () => deleteProduct(index));
-  addMorePhotosButton.addEventListener('click', () => addMorePhotos(index));
-  showMorePhotosButton.addEventListener('click', () => showMorePhotos(index));
-
-  return template;
-}
+  function updateTotalProducts() {
+    document.getElementById('total-products').textContent = totalProducts;
+  }
 
 
-function addProduct() {
-    // Obtener valores de los campos
+  // Función para actualizar el total de stock
+  function updateTotalStock() {
+    let sumStock = 0;
+    products.forEach(product => {
+      sumStock += product.stock;
+    });
+    totalStock = sumStock;
+    document.getElementById('total-stock-quantity').textContent = totalStock;
+  }
+
+  // Función para actualizar el costo total
+  function updateTotalCost() {
+    let sumCost = 0;
+    products.forEach(product => {
+      sumCost += product.cost * product.stock;
+    });
+    totalCost = sumCost;
+    document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+  }
+
+  function createProductTemplate(name, sku, price, cost, stock, category, index) {
+    const template = document.createElement('div');
+    template.classList.add('product');
+    template.classList.add(`product-${index}`);
+    template.innerHTML = `
+      <div class="product-images">
+        <img src="${products[index].image}" alt="Producto" class="product-image">
+        <div class="additional-images"></div>
+      </div>
+      <div class="product-details">
+        <label>Nombre:</label>
+        <input type="text" class="name" value="${name}" disabled>
+        <label>SKU:</label>
+        <input type="text" class="sku" value="${sku}" disabled>
+        <label>Precio:</label>
+        <input type="number" class="price" value="${price}" step="0.01" disabled>
+        <label>Costo:</label>
+        <input type="number" class="cost" value="${cost}" step="0.01" disabled>
+        <label>Stock:</label>
+        <input type="number" class="stock" value="${stock}" disabled>
+        <label>Categoría:</label>
+        <input type="text" class="category" value="${category}" disabled>
+      </div>
+      <div class="action-buttons">
+        <button class="edit-btn">Editar</button>
+        <button class="change-img-btn">Cambiar Imagen</button>
+        <button class="delete-btn">Eliminar</button>
+        <button class="add-more-photos-btn">Agregar más fotos</button>
+        <button class="show-more-photos-btn">Mostrar más fotos</button>
+      </div>
+    `;
+
+    const imageContainer = template.querySelector('.product-images');
+    const additionalImagesContainer = template.querySelector('.additional-images');
+
+    products[index].additionalImages.forEach((image, i) => {
+      const additionalImage = new Image();
+      additionalImage.src = image;
+      additionalImage.alt = `Producto ${i + 2}`;
+      additionalImage.classList.add('additional-image');
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = '×';
+      deleteButton.classList.add('delete-photo-btn');
+      deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i));
+      const imageWrapper = document.createElement('div');
+      imageWrapper.classList.add('image-wrapper');
+      imageWrapper.appendChild(additionalImage);
+      imageWrapper.appendChild(deleteButton);
+      additionalImagesContainer.appendChild(imageWrapper);
+    });
+
+    const editButton = template.querySelector('.edit-btn');
+    const imageInput = template.querySelector('.change-img-btn');
+    const deleteButton = template.querySelector('.delete-btn');
+    const addMorePhotosButton = template.querySelector('.add-more-photos-btn');
+    const showMorePhotosButton = template.querySelector('.show-more-photos-btn');
+
+    editButton.addEventListener('click', () => editProduct(index));
+    imageInput.addEventListener('click', () => changeImage(index));
+    deleteButton.addEventListener('click', () => deleteProduct(index));
+    addMorePhotosButton.addEventListener('click', () => addMorePhotos(index));
+    showMorePhotosButton.addEventListener('click', () => showMorePhotos(index));
+
+    return template;
+  }
+
+  function addProduct() {
     const name = document.getElementById('name').value;
     const sku = document.getElementById('sku').value.trim();
     const price = parseFloat(document.getElementById('price').value);
     const cost = parseFloat(document.getElementById('cost').value);
     const stock = parseInt(document.getElementById('stock').value);
-    const width = parseFloat(document.getElementById('width').value);
-    const height = parseFloat(document.getElementById('height').value);
-    const depth = parseFloat(document.getElementById('depth').value);
-    const diameter = parseFloat(document.getElementById('diameter').value);
-    const color = document.getElementById('color').value;
-    const weight = parseFloat(document.getElementById('weight').value);
-    const imageInput = document.getElementById('image-input');
-    const imageFile = imageInput.files[0];
+    const category = document.getElementById('category').value.trim();
 
-    // Validar campos obligatorios
-    if (!name || !sku || !price || !cost || !stock || !width || !height || !depth || !diameter || !color || !weight) {
-        alert("Por favor, complete todos los campos.");
+    if (!name || !sku || !category || isNaN(price) || isNaN(cost)) {
+        alert("Por favor, complete los campos obligatorios: Nombre de producto, SKU, Categoría, Precio y Costo.");
         return;
     }
 
-    // Verificar si el SKU ya está en uso
     if (products.some(product => product.sku === sku)) {
         alert("El SKU ingresado ya está en uso. Por favor, elija otro SKU único.");
         return;
     }
 
-    // Validar si el costo es mayor que el precio
     if (cost > price) {
         alert("El costo no puede ser mayor que el precio. Por favor, ingrese un costo válido.");
         return;
@@ -222,201 +234,264 @@ function addProduct() {
         price: price,
         cost: cost,
         stock: stock,
-        width: width,
-        height: height,
-        depth: depth,
-        diameter: diameter,
-        color: color,
-        weight: weight,
+        category: category,
         image: "",
         additionalImages: []
     };
+
+    const imageInput = document.getElementById('image-input');
+    const imageFile = imageInput.files[0];
 
     if (imageFile) {
         const reader = new FileReader();
         reader.onload = function(event) {
             newProduct.image = event.target.result;
             products.push(newProduct);
-            renderProducts(products); // Mostrar todos los productos
+            totalProducts++;
+            totalStock += stock;
+            totalCost += cost * stock;
+            updateTotalStock();
+            updateTotalCost();
+            updateTotalProducts();
+            renderProducts(products);
         };
         reader.readAsDataURL(imageFile);
     } else {
         products.push(newProduct);
-        renderProducts(products); // Mostrar todos los productos
+        totalProducts++;
+        totalStock += stock;
+        totalCost += cost * stock;
+        updateTotalStock();
+        updateTotalCost();
+        updateTotalProducts();
+        renderProducts(products);
     }
 
-    totalProducts++;
-    totalStock += stock;
-    totalCost += cost * stock;
-    updateTotalProducts();
-    updateTotalStock();
-    updateTotalCost();
+    if (category.trim() !== '' && !categories.includes(category)) {
+        categories.push(category.trim());
+        updateCategoryFilter();
+        addCategoryButton(category.trim()); // Agregar botón de categoría si es nuevo
+    }
 
     const form = document.getElementById('product-form');
     if (form && typeof form.reset === 'function') {
-        form.reset(); // Restablecer los valores de los campos del formulario
+        form.reset();
     }
 }
-    
 
-function editProduct(index) {
-  const product = products[index];
-  const fields = document.querySelectorAll('.product')[index].querySelectorAll('input');
+  function editProduct(index) {
+    const product = products[index];
+    const fields = document.querySelectorAll('.product')[index].querySelectorAll('input');
 
-  fields.forEach(field => {
-    field.disabled = !field.disabled;
-  });
-
-  const editButton = document.querySelectorAll('.edit-btn')[index];
-  if (editButton.textContent === 'Guardar') {
-    editButton.textContent = 'Editar';
-    products[index].name = fields[0].value;
-    products[index].sku = fields[1].value;
-    products[index].price = parseFloat(fields[2].value);
-    products[index].cost = parseFloat(fields[3].value);
-    products[index].stock = parseInt(fields[4].value);
-    renderProducts();
-    updateTotalStock();
-    updateTotalCost();
-    updateTotalProducts(); // Actualizar también el total de productos
-  } else {
-    editButton.textContent = 'Guardar';
-  }
-}
-
-function changeImage(index) {
-  const imageInput = document.createElement('input');
-  imageInput.type = 'file';
-  imageInput.accept = 'image/*';
-  imageInput.addEventListener('change', function() {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      products[index].image = event.target.result;
-      renderProducts();
-    };
-    reader.readAsDataURL(this.files[0]);
-  });
-  imageInput.click();
-}
-
-function deleteProduct(index) {
-  const deletedProduct = products[index];
-  totalProducts--;
-  totalStock -= deletedProduct.stock;
-  totalCost -= deletedProduct.cost * deletedProduct.stock;
-  products.splice(index, 1);
-  renderProducts();
-  updateTotalProducts();
-  updateTotalStock();
-  updateTotalCost();
-}
-
-function deleteAdditionalImage(productIndex, imageIndex) {
-  products[productIndex].additionalImages.splice(imageIndex, 1);
-  renderProducts();
-}
-
-function addMorePhotos(index) {
-  const imageInput = document.createElement('input');
-  imageInput.type = 'file';
-  imageInput.accept = 'image/*';
-  imageInput.multiple = true; // Allow selecting multiple images
-  imageInput.addEventListener('change', function() {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const additionalImages = event.target.result;
-      if (products[index].additionalImages.length < 4) {
-        products[index].additionalImages.push(additionalImages);
-        renderProducts();
-      } else {
-        alert("Solo se permiten hasta 4 fotos adicionales.");
-      }
-    };
-    for (const file of this.files) {
-      reader.readAsDataURL(file);
-    }
-  });
-  imageInput.click();
-}
-
-function showMorePhotos(index) {
-  const product = products[index];
-  const additionalImagesContainer = document.querySelector(`.product-${index} .additional-images`);
-  const showMoreButton = document.querySelector(`.product-${index} .show-more-photos-btn`);
-
-  if (product.additionalImages.length > 0) {
-    if (showMoreButton.textContent === "Mostrar más fotos") {
-      showMoreButton.textContent = "Mostrar menos fotos";
-      showMoreButton.style.backgroundColor = "#ffcc00"; // Cambiar color de fondo del botón
-
-      // Limpiar imágenes adicionales anteriores
-      additionalImagesContainer.innerHTML = '';
-
-      // Iterar sobre las imágenes adicionales y agregarlas al contenedor
-      product.additionalImages.forEach((image, i) => {
-        // Crear un contenedor para la imagen y el botón de eliminación
-        const imageWrapper = document.createElement('div');
-        imageWrapper.classList.add('image-wrapper');
-
-        // Crear la imagen adicional y configurar atributos
-        const additionalImage = new Image();
-        additionalImage.src = image;
-        additionalImage.alt = `Producto ${i + 2}`;
-        additionalImage.classList.add('additional-image');
-
-        // Crear el botón de eliminación y configurar eventos
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('delete-photo-btn');
-        deleteButton.innerHTML = '&times;'; // Símbolo de la cruz
-        deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i)); // Llamar a la función deleteAdditionalImage
-
-        // Agregar la imagen y el botón de eliminación al contenedor
-        imageWrapper.appendChild(additionalImage);
-        imageWrapper.appendChild(deleteButton);
-
-        // Agregar el contenedor al contenedor de imágenes adicionales
-        additionalImagesContainer.appendChild(imageWrapper);
-      });
-    } else {
-      showMoreButton.textContent = "Mostrar más fotos";
-      showMoreButton.style.backgroundColor = "#007bff"; // Cambiar color de fondo del botón
-      additionalImagesContainer.innerHTML = ''; // Ocultar imágenes adicionales
-    }
-  }
-}
-
-function renderProducts(filteredProducts = []) {
-  const container = document.getElementById('products-list');
-  container.innerHTML = '';
-
-  const renderData = filteredProducts.length > 0 ? filteredProducts : products;
-
-  renderData.forEach((product, index) => {
-    const template = createProductTemplate(product.name, product.sku, product.price, product.cost, product.stock, index);
-    container.appendChild(template);
-  });
-}
-
-function searchProducts() {
-    const searchTerm = document.getElementById('search').value.trim().toLowerCase();
-    let filteredProducts = products.filter(product => {
-        return product.sku.toLowerCase().includes(searchTerm);
+    fields.forEach(field => {
+      field.disabled = !field.disabled;
     });
 
-    renderProducts(filteredProducts); // Renderizar solo los productos filtrados
+    const editButton = document.querySelectorAll('.edit-btn')[index];
+    if (editButton.textContent === 'Guardar') {
+      editButton.textContent = 'Editar';
+      products[index].name = fields[0].value;
+      products[index].sku = fields[1].value;
+      products[index].price = parseFloat(fields[2].value);
+      products[index].cost = parseFloat(fields[3].value);
+      products[index].stock = parseInt(fields[4].value);
+      renderProducts();
+      updateTotalStock();
+      updateTotalCost();
+      updateTotalProducts();
+
+      const oldStock = product.stock;
+      const newStock = parseInt(fields[4].value);
+      if (oldStock !== newStock) {
+        totalStock = totalStock - oldStock + newStock;
+        totalCost = totalCost - (product.cost * oldStock) + (product.cost * newStock);
+
+        updateTotalStock();
+        updateTotalCost();
+      }
+    } else {
+      editButton.textContent = 'Guardar';
+    }
+  }
+
+  function deleteProduct(index) {
+    const deletedProduct = products[index];
+    totalProducts--;
+    totalStock -= deletedProduct.stock;
+    totalCost -= deletedProduct.cost * deletedProduct.stock;
+    products.splice(index, 1);
+    renderProducts();
+    updateTotalProducts();
+    updateTotalStock();
+    updateTotalCost();
+  }
+
+  function changeImage(index) {
+    const imageInput = document.createElement('input');
+    imageInput.type = 'file';
+    imageInput.accept = 'image/*';
+    imageInput.addEventListener('change', function() {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        products[index].image = event.target.result;
+        renderProducts();
+      };
+      reader.readAsDataURL(this.files[0]);
+    });
+    imageInput.click();
+  }
+
+  function deleteAdditionalImage(productIndex, imageIndex) {
+    products[productIndex].additionalImages.splice(imageIndex, 1);
+    renderProducts();
+  }
+
+  function addMorePhotos(index) {
+    const imageInput = document.createElement('input');
+    imageInput.type = 'file';
+    imageInput.accept = 'image/*';
+    imageInput.addEventListener('change', function() {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const additionalImages = event.target.result;
+        if (products[index].additionalImages.length < 4) {
+          products[index].additionalImages.push(additionalImages);
+          renderProducts();
+        } else {
+          alert("Solo se permiten hasta 4 fotos adicionales.");
+        }
+      };
+      for (const file of this.files) {
+        reader.readAsDataURL(file);
+      }
+    });
+    imageInput.click();
+  }
+
+  function showMorePhotos(index) {
+    const product = products[index];
+    const additionalImagesContainer = document.querySelector(`.product-${index} .additional-images`);
+    const showMoreButton = document.querySelector(`.product-${index} .show-more-photos-btn`);
+
+    if (product.additionalImages.length > 0) {
+      if (showMoreButton.textContent === "Mostrar más fotos") {
+        showMoreButton.textContent = "Mostrar menos fotos";
+        showMoreButton.style.backgroundColor = "#ffcc00";
+
+        additionalImagesContainer.innerHTML = '';
+
+        product.additionalImages.forEach((image, i) => {
+          const imageWrapper = document.createElement('div');
+          imageWrapper.classList.add('image-wrapper');
+
+          const additionalImage = new Image();
+          additionalImage.src = image;
+          additionalImage.alt = `Producto ${i + 2}`;
+          additionalImage.classList.add('additional-image');
+
+          const deleteButton = document.createElement('button');
+          deleteButton.classList.add('delete-photo-btn');
+          deleteButton.innerHTML = '&times;';
+          deleteButton.addEventListener('click', () => deleteAdditionalImage(index, i));
+
+          imageWrapper.appendChild(additionalImage);
+          imageWrapper.appendChild(deleteButton);
+
+          additionalImagesContainer.appendChild(imageWrapper);
+        });
+      } else {
+        showMoreButton.textContent = "Mostrar más fotos";
+        showMoreButton.style.backgroundColor = "#007bff";
+        additionalImagesContainer.innerHTML = '';
+      }
+    }
+  }
+
+  function renderProducts(filteredProducts = []) {
+    const container = document.getElementById('products-list');
+    container.innerHTML = '';
+
+    const renderData = filteredProducts.length > 0 ? filteredProducts : products;
+
+    renderData.forEach((product, index) => {
+      // Verificar si la categoría coincide con la categoría filtrada
+      if (filteredCategory === 'Todas' || product.category === filteredCategory) {
+        const template = createProductTemplate(product.name, product.sku, product.price, product.cost, product.stock, product.category, index);
+        container.appendChild(template);
+      }
+    });
+  }
+
+  function searchProducts() {
+    const searchTerm = document.getElementById('search').value.trim().toLowerCase();
+    let filteredProducts = products.filter(product => {
+      return product.sku.toLowerCase().includes(searchTerm);
+    });
+
+    renderProducts(filteredProducts);
 
     const showAllButton = document.getElementById('show-all-button');
     if (showAllButton) {
-        showAllButton.style.display = filteredProducts.length > 0 ? 'block' : 'none';
+      showAllButton.style.display = filteredProducts.length > 0 ? 'block' : 'none';
+    }
+  }
+
+  function showAllProducts() {
+    renderProducts();
+    document.getElementById('show-all-button').style.display = 'none';
+  }
+
+  function filterByCategory() {
+    const selectedCategory = document.getElementById('category-filter').value;
+    renderProducts(products.filter(product => selectedCategory === 'Todas' || product.category === selectedCategory));
+  }
+
+  function updateCategoryFilter() {
+    const categoryFilterSelect = document.getElementById('category-filter');
+    categoryFilterSelect.innerHTML = '';
+
+    const optionAll = document.createElement('option');
+    optionAll.value = 'Todas';
+    optionAll.textContent = 'Todas';
+    categoryFilterSelect.appendChild(optionAll);
+
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryFilterSelect.appendChild(option);
+    });
+}
+
+  function filterProductsByCategory() {
+    const filteredProducts = products.filter(product => filteredCategory === 'Todas' || product.category === filteredCategory);
+    renderProducts(filteredProducts);
+  }
+
+  // Función para agregar un botón de categoría
+  function addCategoryButton(category) {
+    const container = document.getElementById('category-buttons-container');
+    const existingButton = container.querySelector(`button[data-category="${category}"]`);
+    
+    if (!existingButton) {
+        const button = document.createElement('button');
+        button.textContent = category;
+        button.dataset.category = category; // Agregar un atributo de datos para almacenar la categoría
+        button.addEventListener('click', () => {
+            filteredCategory = category; // Actualizar la categoría filtrada
+            filterProductsByCategory(); // Filtrar productos por categoría
+        });
+        container.appendChild(button);
     }
 }
 
 function showAllProducts() {
-  renderProducts();
-  document.getElementById('show-all-button').style.display = 'none';
+    filteredCategory = 'Todas'; // Restablecer la categoría filtrada a 'Todas'
+    renderProducts(); // Mostrar todos los productos
 }
 
-document.getElementById('add-product').addEventListener('click', addProduct);
+  updateCategoryFilter();
+  document.getElementById('add-product').addEventListener('click', addProduct);
 </script>
 
 </body>

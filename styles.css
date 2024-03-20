@@ -270,3 +270,46 @@ body {
   .search-button:hover {
     background-color: #45a049;
   }
+
+ /* Estilos para el contenedor de botones de categoría */
+#category-buttons-container {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Estilos para los botones de categoría */
+#category-buttons-container button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#category-buttons-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para el botón "MOSTRAR TODOS" */
+#show-all-products-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #28a745; /* Cambio de color de fondo a verde */
+    color: #fff; /* Color de texto blanco */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor apuntador */
+    transition: background-color 0.3s ease; /* Transición suave */
+}
+
+#show-all-products-button:hover {
+    background-color: #218838; /* Cambio de color de fondo a verde más oscuro al pasar el mouse */
+}
